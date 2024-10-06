@@ -34,8 +34,16 @@ def grafico_distribucion_grado(df):
 # Gráfico de barras de los dos mejores promedios por grado
 def grafico_mejores_promedios(df):
     mejores_promedios = df.groupby('Grado').apply(lambda x: x.nlargest(2, 'Promedio')).reset_index(drop=True)
-    fig = px.bar(mejores_promedios, x='Grado', y='Promedio', color='Nombre', 
+    fig = px.bar(mejores_promedios, x='Grado', y='Promedio', color='Nombre',
                  title='Dos Mejores Promedios por Grado', barmode='group')
+    return fig
+
+# Gráfico de rendimiento (pasaron/no pasaron)
+def grafico_rendimiento(df):
+    df['Estado'] = df['Promedio'].apply(lambda x: 'Pasó' if x >= 3.0 else 'No Pasó')
+    conteo_estado = df['Estado'].value_counts().reset_index()
+    conteo_estado.columns = ['Estado', 'Cantidad']
+    fig = px.bar(conteo_estado, x='Estado', y='Cantidad', title='Estudiantes que Pasaron y No Pasaron el Periodo')
     return fig
 
 # Aplicación Streamlit
@@ -69,9 +77,14 @@ def main():
     st.subheader('Dos Mejores Promedios por Grado')
     st.plotly_chart(grafico_mejores_promedios(df))
 
+    # Gráfico de rendimiento
+    st.subheader('Rendimiento Estudiantil')
+    st.plotly_chart(grafico_rendimiento(df))
+
     # Filtro de estudiantes
     st.subheader('Filtro de Estudiantes')
     nombre_buscar = st.text_input('Buscar estudiante por nombre:')
+
     if nombre_buscar:
         estudiantes_filtrados = df[df['Nombre'].str.contains(nombre_buscar, case=False)]
         if not estudiantes_filtrados.empty:
