@@ -14,12 +14,10 @@ def load_data():
 
 # Gráfico de barras de edades de estudiantes
 def grafico_edades(df):
-    fig = px.bar(df['Edad'].value_counts().reset_index(), 
-                 x='index', 
-                 y='Edad', 
-                 title='Distribución de Edades de los Estudiantes',
-                 color='Edad',
-                 color_continuous_scale=px.colors.sequential.Viridis)
+    conteo_edades = df['Edad'].value_counts().reset_index()
+    conteo_edades.columns = ['Edad', 'Cantidad']
+    fig = px.bar(conteo_edades, x='Edad', y='Cantidad', title='Distribución de Edades de los Estudiantes',
+                 color='Cantidad', color_continuous_scale=px.colors.sequential.Viridis)
     return fig
 
 # Gráfico de promedio por grado
