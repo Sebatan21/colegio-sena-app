@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Cargar datos desde CSV
 @st.cache_data
@@ -17,42 +18,86 @@ def grafico_edades(df):
     conteo_edades = df['Edad'].value_counts().reset_index()
     conteo_edades.columns = ['Edad', 'Cantidad']
     fig = px.bar(conteo_edades, x='Edad', y='Cantidad', title='Distribución de Edades de los Estudiantes',
-                 color='Cantidad', color_continuous_scale=px.colors.sequential.Viridis)
+                 color='Edad', color_continuous_scale=px.colors.sequential.Viridis)
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
     return fig
 
 # Gráfico de promedio por grado
 def grafico_promedio_grado(df):
     promedio_por_grado = df.groupby('Grado')['Promedio'].mean().reset_index()
-    fig = px.bar(promedio_por_grado, x='Grado', y='Promedio', title='Promedio por Grado')
+    fig = px.bar(promedio_por_grado, x='Grado', y='Promedio', title='Promedio por Grado',
+                 color='Grado', color_discrete_sequence=px.colors.qualitative.Set3)
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
     return fig
 
 # Gráfico de pie de distribución de estudiantes por grado
 def grafico_distribucion_grado(df):
     conteo_por_grado = df['Grado'].value_counts().reset_index()
     conteo_por_grado.columns = ['Grado', 'Cantidad']
-    fig = px.pie(conteo_por_grado, values='Cantidad', names='Grado', title='Distribución de Estudiantes por Grado')
+    fig = px.pie(conteo_por_grado, values='Cantidad', names='Grado', title='Distribución de Estudiantes por Grado',
+                 color_discrete_sequence=px.colors.qualitative.Pastel)
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
     return fig
 
 # Gráfico de los dos mejores promedios por grado
 def grafico_mejores_promedios(df):
     mejores_promedios = df.groupby('Grado').apply(lambda x: x.nlargest(2, 'Promedio')).reset_index(drop=True)
     fig = px.bar(mejores_promedios, x='Grado', y='Promedio', color='Nombre',
-                 title='Dos Mejores Promedios por Grado', barmode='group')
+                 title='Dos Mejores Promedios por Grado', barmode='group',
+                 color_discrete_sequence=px.colors.qualitative.Bold)
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
     return fig
 
-# Gráfico de rendimiento (pasaron/no pasaron)
-def grafico_rendimiento(df):
+# Gráfico de rendimiento detallado por estudiante y grado
+def grafico_rendimiento_detallado(df):
     df['Estado'] = df['Promedio'].apply(lambda x: 'Pasó' if x >= 3.0 else 'No Pasó')
-    conteo_estado = df['Estado'].value_counts().reset_index()
-    conteo_estado.columns = ['Estado', 'Cantidad']
-    fig = px.bar(conteo_estado, x='Estado', y='Cantidad', title='Estudiantes que Pasaron y No Pasaron el Periodo')
+    df['Color'] = df['Estado'].map({'Pasó': 'green', 'No Pasó': 'red'})
+    
+    fig = go.Figure()
+    
+    for grado in df['Grado'].unique():
+        df_grado = df[df['Grado'] == grado]
+        fig.add_trace(go.Bar(
+            x=df_grado['Nombre'],
+            y=df_grado['Promedio'],
+            name=grado,
+            text=df_grado['Estado'],
+            marker_color=df_grado['Color'],
+            hoverinfo='text',
+            hovertext=[f"Nombre: {nombre}<br>Grado: {grado}<br>Promedio: {promedio:.2f}<br>Estado: {estado}"
+                       for nombre, grado, promedio, estado in zip(df_grado['Nombre'], df_grado['Grado'], df_grado['Promedio'], df_grado['Estado'])]
+        ))
+    
+    fig.update_layout(
+        title='Rendimiento Estudiantil por Grado',
+        xaxis_title='Estudiantes',
+        yaxis_title='Promedio',
+        barmode='group',
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
     return fig
 
 # Aplicación Streamlit
 def main():
-    st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="centered")
+    st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="wide")
     
-    # Estilo minimalista
+    # Estilo y fondo
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
+            background-attachment: fixed;
+        }
+        .stTitle, .stSubheader {
+            color: #1E1E1E;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
     st.title('Visualizador de Datos del Colegio SENA')
     
     # Cargar datos
@@ -76,21 +121,25 @@ def main():
             st.write('No se encontraron estudiantes con ese nombre.')
 
     # Gráficos
-    st.subheader('Distribución de Edades de los Estudiantes')
-    st.plotly_chart(grafico_edades(df))
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader('Distribución de Edades de los Estudiantes')
+        st.plotly_chart(grafico_edades(df), use_container_width=True)
 
-    st.subheader('Promedio por Grado')
-    st.plotly_chart(grafico_promedio_grado(df))
+        st.subheader('Distribución de Estudiantes por Grado')
+        st.plotly_chart(grafico_distribucion_grado(df), use_container_width=True)
 
-    st.subheader('Distribución de Estudiantes por Grado')
-    st.plotly_chart(grafico_distribucion_grado(df))
+    with col2:
+        st.subheader('Promedio por Grado')
+        st.plotly_chart(grafico_promedio_grado(df), use_container_width=True)
 
-    st.subheader('Dos Mejores Promedios por Grado')
-    st.plotly_chart(grafico_mejores_promedios(df))
+        st.subheader('Dos Mejores Promedios por Grado')
+        st.plotly_chart(grafico_mejores_promedios(df), use_container_width=True)
 
-    # Gráfico sobre rendimiento
-    st.subheader('Rendimiento Estudiantil')
-    st.plotly_chart(grafico_rendimiento(df))
+    # Gráfico sobre rendimiento detallado
+    st.subheader('Rendimiento Estudiantil Detallado')
+    st.plotly_chart(grafico_rendimiento_detallado(df), use_container_width=True)
 
 if __name__ == '__main__':
     main()
