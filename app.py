@@ -6,16 +6,16 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Configuración de autenticación
-with open('config.yml') as file:
+# Cargar configuración desde el archivo YAML
+with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
+# Configuración del autenticador
 authenticator = stauth.Authenticate(
     config['credentials'],
     config['cookie']['name'],
     config['cookie']['key'],
-    config['cookie']['expiry_days'],
-    config['preauthorized']
+    config['cookie']['expiry_days']
 )
 
 # Función para cargar datos (sin cambios)
