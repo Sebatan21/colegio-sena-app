@@ -7,7 +7,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 # Cargar configuración desde el archivo YAML
-with open('config.yaml') as file:
+with open('config.yml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 # Configuración del autenticador
