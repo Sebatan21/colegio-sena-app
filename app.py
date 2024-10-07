@@ -6,6 +6,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+# Configuración de la página (MOVIDO AL PRINCIPIO)
+st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="wide")
+
 # Cargar configuración desde el archivo YAML
 with open('config.yml') as file:
     config = yaml.load(file, Loader=SafeLoader)
@@ -18,7 +21,7 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-# Función para cargar datos (sin cambios)
+# Función para cargar datos
 @st.cache_data
 def load_data():
     try:
@@ -92,10 +95,9 @@ def grafico_rendimiento_detallado(df):
         paper_bgcolor='rgba(0,0,0,0)'
     )
     return fig
+
 # Función principal de la aplicación
 def main():
-    st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="wide")
-    
     # Estilo y fondo
     st.markdown(
         """
