@@ -77,7 +77,6 @@ def grafico_rendimiento_detallado(df):
         paper_bgcolor='rgba(0,0,0,0)'
     )
     return fig
-
 # Aplicación Streamlit
 def main():
     st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="wide")
@@ -106,19 +105,29 @@ def main():
     if df.empty:
         return
 
-    # Filtro de estudiantes
+    # Filtro de estudiantes mejorado
     st.subheader('Filtro de Estudiantes')
-    nombre_buscar = st.text_input('Buscar estudiante por nombre:')
     
-    if nombre_buscar:
-        estudiantes_filtrados = df[df['Nombre'].str.contains(nombre_buscar, case=False)]
-        
-        if not estudiantes_filtrados.empty:
-            seleccion = st.selectbox('Selecciona un estudiante:', estudiantes_filtrados['Nombre'].tolist())
-            estudiante_seleccionado = estudiantes_filtrados[estudiantes_filtrados['Nombre'] == seleccion]
-            st.write(estudiante_seleccionado)
-        else:
-            st.write('No se encontraron estudiantes con ese nombre.')
+    # Opción para elegir el método de búsqueda
+    metodo_busqueda = st.radio("Selecciona el método de búsqueda:", ("Lista desplegable", "Búsqueda por nombre"))
+
+    if metodo_busqueda == "Lista desplegable":
+        # Lista desplegable con todos los estudiantes
+        estudiante_seleccionado = st.selectbox('Selecciona un estudiante:', df['Nombre'].tolist())
+        if estudiante_seleccionado:
+            info_estudiante = df[df['Nombre'] == estudiante_seleccionado]
+            st.write(info_estudiante)
+    else:
+        # Búsqueda por nombre
+        nombre_buscar = st.text_input('Buscar estudiante por nombre:')
+        if nombre_buscar:
+            estudiantes_filtrados = df[df['Nombre'].str.contains(nombre_buscar, case=False)]
+            if not estudiantes_filtrados.empty:
+                seleccion = st.selectbox('Selecciona un estudiante:', estudiantes_filtrados['Nombre'].tolist())
+                estudiante_seleccionado = estudiantes_filtrados[estudiantes_filtrados['Nombre'] == seleccion]
+                st.write(estudiante_seleccionado)
+            else:
+                st.write('No se encontraron estudiantes con ese nombre.')
 
     # Gráficos
     col1, col2 = st.columns(2)
