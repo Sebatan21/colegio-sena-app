@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Configuración de la página (MOVIDO AL PRINCIPIO)
+# Configuración de la página (AL PRINCIPIO)
 st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="wide")
 
 # Cargar configuración desde el archivo YAML
@@ -115,7 +115,17 @@ def main():
     )
     
     # Autenticación
-    name, authentication_status, username = authenticator.login('Login', 'main')
+    try:
+        name, authentication_status, username = authenticator.login('Login', 'main')
+    except ValueError as e:
+        st.error(f"Error en la autenticación: {e}")
+        st.error("Intentando con 'sidebar' como ubicación...")
+        try:
+            name, authentication_status, username = authenticator.login('Login', 'sidebar')
+        except ValueError as e:
+            st.error(f"Error persistente en la autenticación: {e}")
+            st.error("Por favor, revisa la configuración de autenticación.")
+            return
 
     if authentication_status:
         authenticator.logout('Logout', 'main')
