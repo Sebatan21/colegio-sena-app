@@ -190,7 +190,7 @@ def main():
         st.subheader('Rendimiento Estudiantil Detallado')
         st.plotly_chart(grafico_rendimiento_detallado(df), use_container_width=True)
 
-     elif authentication_status == False:
+    elif authentication_status == False:
         st.error('Username/password is incorrect')
     elif authentication_status == None:
         st.warning('Please enter your username and password')
