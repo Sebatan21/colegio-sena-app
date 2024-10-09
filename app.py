@@ -5,6 +5,7 @@ from yaml.loader import SafeLoader
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import pkg_resources
 
 # Configuración de la página (MOVIDO AL PRINCIPIO)
 st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="wide")
@@ -19,7 +20,7 @@ authenticator = stauth.Authenticate(
     config['cookie']['name'],
     config['cookie']['key'],
     config['cookie']['expiry_days'],
-    config['preauthorized']
+    config.get('preauthorized', {'emails': []})
 )
 
 # Función para cargar datos
@@ -115,8 +116,18 @@ def main():
         unsafe_allow_html=True
     )
     
-# Autenticación
-    st.write("Versión de streamlit_authenticator:", stauth.__version__)
+    # Obtener información sobre streamlit_authenticator
+    try:
+        stauth_version = pkg_resources.get_distribution("streamlit_authenticator").version
+        st.write("Versión de streamlit_authenticator:", stauth_version)
+    except Exception as e:
+        st.error(f"No se pudo obtener la versión de streamlit_authenticator: {str(e)}")
+
+    # Mostrar métodos disponibles en el autenticador
+    st.write("Métodos disponibles en el autenticador:")
+    st.write(dir(authenticator))
+    
+    # Autenticación
     try:
         name, authentication_status, username = authenticator.login("Login", "main")
         st.write(f"Login result: name={name}, status={authentication_status}, username={username}")
@@ -137,7 +148,6 @@ def main():
         
         if df.empty:
             return
-
         # Filtro de estudiantes mejorado
         st.subheader('Filtro de Estudiantes')
         
@@ -180,7 +190,7 @@ def main():
         st.subheader('Rendimiento Estudiantil Detallado')
         st.plotly_chart(grafico_rendimiento_detallado(df), use_container_width=True)
 
-    elif authentication_status == False:
+     elif authentication_status == False:
         st.error('Username/password is incorrect')
     elif authentication_status == None:
         st.warning('Please enter your username and password')
