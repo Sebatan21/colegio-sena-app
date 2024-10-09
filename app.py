@@ -22,6 +22,9 @@ authenticator = stauth.Authenticate(
     config.get('preauthorized', [])
 )
 
+st.write("Tipo de autenticador:", type(authenticator))
+st.write("Contenido del autenticador:", vars(authenticator))
+
 # Función para cargar datos
 @st.cache_data
 def load_data():
