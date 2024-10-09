@@ -3,7 +3,7 @@ credentials:
     jsmith:
       email: jsmith@gmail.com
       name: John Smith
-      password: $2b$12$abcdefghijklmnopqrstuvwxyz12345678901234567890 # This is a hashed password
+      password: $2b$12$abcdefghijklmnopqrstuvwxyz12345678901234567890 # Esta es una contraseña hasheada
 cookie:
   expiry_days: 30
   key: some_signature_key

@@ -22,9 +22,6 @@ authenticator = stauth.Authenticate(
     config.get('preauthorized', [])
 )
 
-st.write("Tipo de autenticador:", type(authenticator))
-st.write("Contenido del autenticador:", vars(authenticator))
-
 # Función para cargar datos
 @st.cache_data
 def load_data():
@@ -34,6 +31,7 @@ def load_data():
     except Exception as e:
         st.error(f"Error al cargar los datos: {e}")
         return pd.DataFrame()
+
 
 # Gráfico de barras de edades de estudiantes
 def grafico_edades(df):
@@ -119,20 +117,18 @@ def main():
             unsafe_allow_html=True
         )
         
-        # Obtener información sobre streamlit_authenticator
-        st.write("Versión de streamlit_authenticator:", getattr(stauth, '__version__', 'Desconocida'))
-
-        # Mostrar métodos disponibles en el autenticador
-        st.write("Métodos disponibles en el autenticador:")
-        st.write(dir(authenticator))
-        
         # Autenticación
         auth_name, auth_status, auth_username = authenticator.login("Login", "main")
 
+        if auth_status == False:
+            st.error('Username/password is incorrect')
+        elif auth_status == None:
+            st.warning('Please enter your username and password')
+
         if auth_status:
             # Autenticación exitosa
-            authenticator.logout("Logout", "main", key="unique_key")
-            st.write(f'Welcome *{auth_name}*')
+            authenticator.logout("Logout", "sidebar")
+            st.sidebar.write(f'Welcome *{auth_name}*')
             
             st.title('Visualizador de Datos del Colegio SENA')
             
@@ -190,7 +186,7 @@ def main():
         elif auth_status == None:
             st.warning('Please enter your username and password')
 
-        # Registro de nuevos usuarios
+          # Registro de nuevos usuarios
         if auth_status != True:
             with st.expander("Registrarse"):
                 if authenticator.register_user('Register user', preauthorization=False):
