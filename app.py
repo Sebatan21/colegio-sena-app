@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Configuración de la página (AL PRINCIPIO)
+# Configuración de la página (MOVIDO AL PRINCIPIO)
 st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="wide")
 
 # Cargar configuración desde el archivo YAML
@@ -18,7 +18,8 @@ authenticator = stauth.Authenticate(
     config['credentials'],
     config['cookie']['name'],
     config['cookie']['key'],
-    config['cookie']['expiry_days']
+    config['cookie']['expiry_days'],
+    config['preauthorized']
 )
 
 # Función para cargar datos
@@ -114,18 +115,16 @@ def main():
         unsafe_allow_html=True
     )
     
-    # Autenticación
+# Autenticación
+    st.write("Versión de streamlit_authenticator:", stauth.__version__)
     try:
-        name, authentication_status, username = authenticator.login('Login', 'main')
-    except ValueError as e:
-        st.error(f"Error en la autenticación: {e}")
-        st.error("Intentando con 'sidebar' como ubicación...")
-        try:
-            name, authentication_status, username = authenticator.login('Login', 'sidebar')
-        except ValueError as e:
-            st.error(f"Error persistente en la autenticación: {e}")
-            st.error("Por favor, revisa la configuración de autenticación.")
-            return
+        name, authentication_status, username = authenticator.login("Login", "main")
+        st.write(f"Login result: name={name}, status={authentication_status}, username={username}")
+    except Exception as e:
+        st.error(f"Error en la autenticación: {str(e)}")
+        st.error("Tipo de error:", type(e).__name__)
+        st.error("Detalles del error:", str(e))
+        return
 
     if authentication_status:
         authenticator.logout('Logout', 'main')
@@ -189,8 +188,11 @@ def main():
     # Registro de nuevos usuarios
     if authentication_status != True:
         with st.expander("Registrarse"):
-            if authenticator.register_user('Register user', preauthorization=False):
-                st.success('User registered successfully')
+            try:
+                if authenticator.register_user('Register user', preauthorization=False):
+                    st.success('User registered successfully')
+            except Exception as e:
+                st.error(f"Error en el registro: {str(e)}")
 
 if __name__ == '__main__':
     main()
