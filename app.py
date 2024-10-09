@@ -5,7 +5,6 @@ from yaml.loader import SafeLoader
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import pkg_resources
 
 # Configuración de la página (MOVIDO AL PRINCIPIO)
 st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="wide")
@@ -117,11 +116,7 @@ def main():
     )
     
     # Obtener información sobre streamlit_authenticator
-    try:
-        stauth_version = pkg_resources.get_distribution("streamlit_authenticator").version
-        st.write("Versión de streamlit_authenticator:", stauth_version)
-    except Exception as e:
-        st.error(f"No se pudo obtener la versión de streamlit_authenticator: {str(e)}")
+    st.write("Versión de streamlit_authenticator:", getattr(stauth, '__version__', 'Desconocida'))
 
     # Mostrar métodos disponibles en el autenticador
     st.write("Métodos disponibles en el autenticador:")
