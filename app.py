@@ -19,7 +19,7 @@ authenticator = stauth.Authenticate(
     config['cookie']['name'],
     config['cookie']['key'],
     config['cookie']['expiry_days'],
-    config.get('preauthorized', {'emails': []})
+    config.get('preauthorized', [])
 )
 
 # Función para cargar datos
@@ -124,12 +124,12 @@ def main():
         st.write(dir(authenticator))
         
         # Autenticación
-        name, authentication_status, username = authenticator.login("Login", "main")
-        st.write(f"Login result: name={name}, status={authentication_status}, username={username}")
+        auth_name, auth_status, auth_username = authenticator.login("Login", "main")
 
-        if authentication_status:
-            authenticator.logout('Logout', 'main')
-            st.write(f'Welcome *{name}*')
+        if auth_status:
+            # Autenticación exitosa
+            authenticator.logout("Logout", "main", key="unique_key")
+            st.write(f'Welcome *{auth_name}*')
             
             st.title('Visualizador de Datos del Colegio SENA')
             
@@ -137,8 +137,9 @@ def main():
             df = load_data()
             
             if df.empty:
+                st.warning("No se pudieron cargar los datos.")
                 return
-            
+
             # Filtro de estudiantes mejorado
             st.subheader('Filtro de Estudiantes')
             
@@ -181,24 +182,20 @@ def main():
             st.subheader('Rendimiento Estudiantil Detallado')
             st.plotly_chart(grafico_rendimiento_detallado(df), use_container_width=True)
 
-        elif authentication_status == False:
+        elif auth_status == False:
             st.error('Username/password is incorrect')
-        elif authentication_status == None:
+        elif auth_status == None:
             st.warning('Please enter your username and password')
 
         # Registro de nuevos usuarios
-        if authentication_status != True:
+        if auth_status != True:
             with st.expander("Registrarse"):
-                try:
-                    if authenticator.register_user('Register user', preauthorization=False):
-                        st.success('User registered successfully')
-                except Exception as e:
-                    st.error(f"Error en el registro: {str(e)}")
+                if authenticator.register_user('Register user', preauthorization=False):
+                    st.success('User registered successfully')
 
     except Exception as e:
         st.error(f"Error en la aplicación: {str(e)}")
-        st.error(f"Tipo de error: {type(e).__name__}")
-        st.exception(e)  # This will display the full traceback
+        st.exception(e)
 
 if __name__ == '__main__':
     main()
