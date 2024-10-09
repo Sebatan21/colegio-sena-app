@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Configuración de la página
+# Configuración de la página (MOVIDO AL PRINCIPIO)
 st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="wide")
 
 # Cargar configuración desde el archivo YAML
@@ -99,106 +99,105 @@ def grafico_rendimiento_detallado(df):
 
 # Función principal de la aplicación
 def main():
-    try:
-        # Estilo y fondo
-        st.markdown(
-            """
-            <style>
-            .stApp {
-                background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
-                background-attachment: fixed;
-            }
-            .stTitle, .stSubheader {
-                color: #1E1E1E;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-        
-        # Obtener información sobre streamlit_authenticator
-        st.write("Versión de streamlit_authenticator:", getattr(stauth, '__version__', 'Desconocida'))
+    # Estilo y fondo
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-image: linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1);
+            background-attachment: fixed;
+        }
+        .stTitle, .stSubheader {
+            color: #1E1E1E;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Obtener información sobre streamlit_authenticator
+    st.write("Versión de streamlit_authenticator:", getattr(stauth, '__version__', 'Desconocida'))
 
-        # Mostrar métodos disponibles en el autenticador
-        st.write("Métodos disponibles en el autenticador:")
-        st.write(dir(authenticator))
-        
-        # Autenticación
+    # Mostrar métodos disponibles en el autenticador
+    st.write("Métodos disponibles en el autenticador:")
+    st.write(dir(authenticator))
+    
+    # Autenticación
+    try:
         name, authentication_status, username = authenticator.login("Login", "main")
         st.write(f"Login result: name={name}, status={authentication_status}, username={username}")
-
-        if authentication_status:
-            authenticator.logout('Logout', 'main')
-            st.write(f'Welcome *{name}*')
-            
-            st.title('Visualizador de Datos del Colegio SENA')
-            
-            # Cargar datos
-            df = load_data()
-            
-            if df.empty:
-                return
-            
-            # Filtro de estudiantes mejorado
-            st.subheader('Filtro de Estudiantes')
-            
-            metodo_busqueda = st.radio("Selecciona el método de búsqueda:", ("Lista desplegable", "Búsqueda por nombre"))
-
-            if metodo_busqueda == "Lista desplegable":
-                estudiante_seleccionado = st.selectbox('Selecciona un estudiante:', df['Nombre'].tolist())
-                if estudiante_seleccionado:
-                    info_estudiante = df[df['Nombre'] == estudiante_seleccionado]
-                    st.write(info_estudiante)
-            else:
-                nombre_buscar = st.text_input('Buscar estudiante por nombre:')
-                if nombre_buscar:
-                    estudiantes_filtrados = df[df['Nombre'].str.contains(nombre_buscar, case=False)]
-                    if not estudiantes_filtrados.empty:
-                        seleccion = st.selectbox('Selecciona un estudiante:', estudiantes_filtrados['Nombre'].tolist())
-                        estudiante_seleccionado = estudiantes_filtrados[estudiantes_filtrados['Nombre'] == seleccion]
-                        st.write(estudiante_seleccionado)
-                    else:
-                        st.write('No se encontraron estudiantes con ese nombre.')
-
-            # Gráficos
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.subheader('Distribución de Edades de los Estudiantes')
-                st.plotly_chart(grafico_edades(df), use_container_width=True)
-
-                st.subheader('Distribución de Estudiantes por Grado')
-                st.plotly_chart(grafico_distribucion_grado(df), use_container_width=True)
-
-            with col2:
-                st.subheader('Promedio por Grado')
-                st.plotly_chart(grafico_promedio_grado(df), use_container_width=True)
-
-                st.subheader('Dos Mejores Promedios por Grado')
-                st.plotly_chart(grafico_mejores_promedios(df), use_container_width=True)
-
-            # Gráfico sobre rendimiento detallado
-            st.subheader('Rendimiento Estudiantil Detallado')
-            st.plotly_chart(grafico_rendimiento_detallado(df), use_container_width=True)
-
-        elif authentication_status == False:
-            st.error('Username/password is incorrect')
-        elif authentication_status == None:
-            st.warning('Please enter your username and password')
-
-        # Registro de nuevos usuarios
-        if authentication_status != True:
-            with st.expander("Registrarse"):
-                try:
-                    if authenticator.register_user('Register user', preauthorization=False):
-                        st.success('User registered successfully')
-                except Exception as e:
-                    st.error(f"Error en el registro: {str(e)}")
-
     except Exception as e:
-        st.error(f"Error en la aplicación: {str(e)}")
+        st.error(f"Error en la autenticación: {str(e)}")
         st.error("Tipo de error:", type(e).__name__)
         st.error("Detalles del error:", str(e))
+        return
+
+    if authentication_status:
+        authenticator.logout('Logout', 'main')
+        st.write(f'Welcome *{name}*')
+        
+        st.title('Visualizador de Datos del Colegio SENA')
+        
+        # Cargar datos
+        df = load_data()
+        
+        if df.empty:
+            return
+        # Filtro de estudiantes mejorado
+        st.subheader('Filtro de Estudiantes')
+        
+        metodo_busqueda = st.radio("Selecciona el método de búsqueda:", ("Lista desplegable", "Búsqueda por nombre"))
+
+        if metodo_busqueda == "Lista desplegable":
+            estudiante_seleccionado = st.selectbox('Selecciona un estudiante:', df['Nombre'].tolist())
+            if estudiante_seleccionado:
+                info_estudiante = df[df['Nombre'] == estudiante_seleccionado]
+                st.write(info_estudiante)
+        else:
+            nombre_buscar = st.text_input('Buscar estudiante por nombre:')
+            if nombre_buscar:
+                estudiantes_filtrados = df[df['Nombre'].str.contains(nombre_buscar, case=False)]
+                if not estudiantes_filtrados.empty:
+                    seleccion = st.selectbox('Selecciona un estudiante:', estudiantes_filtrados['Nombre'].tolist())
+                    estudiante_seleccionado = estudiantes_filtrados[estudiantes_filtrados['Nombre'] == seleccion]
+                    st.write(estudiante_seleccionado)
+                else:
+                    st.write('No se encontraron estudiantes con ese nombre.')
+
+        # Gráficos
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader('Distribución de Edades de los Estudiantes')
+            st.plotly_chart(grafico_edades(df), use_container_width=True)
+
+            st.subheader('Distribución de Estudiantes por Grado')
+            st.plotly_chart(grafico_distribucion_grado(df), use_container_width=True)
+
+        with col2:
+            st.subheader('Promedio por Grado')
+            st.plotly_chart(grafico_promedio_grado(df), use_container_width=True)
+
+            st.subheader('Dos Mejores Promedios por Grado')
+            st.plotly_chart(grafico_mejores_promedios(df), use_container_width=True)
+
+        # Gráfico sobre rendimiento detallado
+        st.subheader('Rendimiento Estudiantil Detallado')
+        st.plotly_chart(grafico_rendimiento_detallado(df), use_container_width=True)
+
+    elif authentication_status == False:
+        st.error('Username/password is incorrect')
+    elif authentication_status == None:
+        st.warning('Please enter your username and password')
+
+    # Registro de nuevos usuarios
+    if authentication_status != True:
+        with st.expander("Registrarse"):
+            try:
+                if authenticator.register_user('Register user', preauthorization=False):
+                    st.success('User registered successfully')
+            except Exception as e:
+                st.error(f"Error en el registro: {str(e)}")
 
 if __name__ == '__main__':
     main()
