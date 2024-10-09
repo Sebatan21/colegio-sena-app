@@ -10,17 +10,10 @@ import plotly.graph_objects as go
 st.set_page_config(page_title="Visualizador de Datos del Colegio SENA", layout="wide")
 
 # Cargar configuración desde el archivo YAML
-with open('config.yml') as file:
-    config = yaml.load(file, Loader=SafeLoader)
-
-# Configuración del autenticador
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days'],
-    config.get('preauthorized', [])
-)
+@st.cache_resource
+def load_config():
+    with open('config.yml') as file:
+        return yaml.load(file, Loader=SafeLoader)
 
 # Función para cargar datos
 @st.cache_data
@@ -29,7 +22,7 @@ def load_data():
         data = pd.read_csv("colegio_sena.csv")
         return data
     except Exception as e:
-        st.error(f"Error al cargar los datos: {e}")
+        st.error(f"Error al cargar los datos: {str(e)}")
         return pd.DataFrame()
 
 
@@ -117,6 +110,18 @@ def main():
             unsafe_allow_html=True
         )
         
+        # Cargar configuración
+        config = load_config()
+        
+        # Configuración del autenticador
+        authenticator = stauth.Authenticate(
+            config['credentials'],
+            config['cookie']['name'],
+            config['cookie']['key'],
+            config['cookie']['expiry_days'],
+            config.get('preauthorized', [])
+        )
+        
         # Autenticación
         auth_name, auth_status, auth_username = authenticator.login("Login", "main")
 
@@ -194,7 +199,6 @@ def main():
 
     except Exception as e:
         st.error(f"Error en la aplicación: {str(e)}")
-        st.exception(e)
 
 if __name__ == '__main__':
     main()
