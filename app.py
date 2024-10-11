@@ -97,6 +97,27 @@ def grafico_rendimiento_detallado(df):
     )
     return configure_plot(fig)
 
+def buscar_estudiante(df):
+    st.subheader('Búsqueda de Estudiantes')
+    
+    metodo_busqueda = st.radio("Selecciona el método de búsqueda:", ("Lista desplegable", "Búsqueda por nombre"))
+
+    if metodo_busqueda == "Lista desplegable":
+        estudiante_seleccionado = st.selectbox('Selecciona un estudiante:', df['Nombre'].tolist())
+        if estudiante_seleccionado:
+            info_estudiante = df[df['Nombre'] == estudiante_seleccionado]
+            st.write(info_estudiante)
+    else:
+        nombre_buscar = st.text_input('Buscar estudiante por nombre:')
+        if nombre_buscar:
+            estudiantes_filtrados = df[df['Nombre'].str.contains(nombre_buscar, case=False)]
+            if not estudiantes_filtrados.empty:
+                seleccion = st.selectbox('Selecciona un estudiante:', estudiantes_filtrados['Nombre'].tolist())
+                estudiante_seleccionado = estudiantes_filtrados[estudiantes_filtrados['Nombre'] == seleccion]
+                st.write(estudiante_seleccionado)
+            else:
+                st.write('No se encontraron estudiantes con ese nombre.')
+
 # Función principal de la aplicación
 def main():
     try:
@@ -149,6 +170,9 @@ def main():
             if df.empty:
                 st.warning("No se pudieron cargar los datos.")
                 return
+
+            # Búsqueda de estudiantes
+            buscar_estudiante(df)
 
             # Mostrar gráficos
             col1, col2 = st.columns(2)
