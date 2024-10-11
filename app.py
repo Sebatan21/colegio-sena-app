@@ -25,6 +25,18 @@ def load_data():
         st.error(f"Error al cargar los datos: {str(e)}")
         return pd.DataFrame()
 
+# Configuración global para los gráficos
+def configure_plot(fig):
+    fig.update_layout(
+        dragmode=False,
+        showlegend=True,
+        hovermode='closest',
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        xaxis=dict(fixedrange=True),
+        yaxis=dict(fixedrange=True)
+    )
+    return fig
 
 # Gráfico de barras de edades de estudiantes
 def grafico_edades(df):
@@ -32,16 +44,14 @@ def grafico_edades(df):
     conteo_edades.columns = ['Edad', 'Cantidad']
     fig = px.bar(conteo_edades, x='Edad', y='Cantidad', title='Distribución de Edades de los Estudiantes',
                  color='Edad', color_continuous_scale=px.colors.sequential.Viridis)
-    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
-    return fig
+    return configure_plot(fig)
 
 # Gráfico de promedio por grado
 def grafico_promedio_grado(df):
     promedio_por_grado = df.groupby('Grado')['Promedio'].mean().reset_index()
     fig = px.bar(promedio_por_grado, x='Grado', y='Promedio', title='Promedio por Grado',
                  color='Grado', color_discrete_sequence=px.colors.qualitative.Set3)
-    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
-    return fig
+    return configure_plot(fig)
 
 # Gráfico de pie de distribución de estudiantes por grado
 def grafico_distribucion_grado(df):
@@ -49,8 +59,7 @@ def grafico_distribucion_grado(df):
     conteo_por_grado.columns = ['Grado', 'Cantidad']
     fig = px.pie(conteo_por_grado, values='Cantidad', names='Grado', title='Distribución de Estudiantes por Grado',
                  color_discrete_sequence=px.colors.qualitative.Pastel)
-    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
-    return fig
+    return configure_plot(fig)
 
 # Gráfico de los dos mejores promedios por grado
 def grafico_mejores_promedios(df):
@@ -58,8 +67,7 @@ def grafico_mejores_promedios(df):
     fig = px.bar(mejores_promedios, x='Grado', y='Promedio', color='Nombre',
                  title='Dos Mejores Promedios por Grado', barmode='group',
                  color_discrete_sequence=px.colors.qualitative.Bold)
-    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)')
-    return fig
+    return configure_plot(fig)
 
 # Gráfico de rendimiento detallado por estudiante y grado
 def grafico_rendimiento_detallado(df):
@@ -85,11 +93,9 @@ def grafico_rendimiento_detallado(df):
         title='Rendimiento Estudiantil por Grado',
         xaxis_title='Estudiantes',
         yaxis_title='Promedio',
-        barmode='group',
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)'
+        barmode='group'
     )
-    return fig
+    return configure_plot(fig)
 
 # Función principal de la aplicación
 def main():
@@ -144,54 +150,20 @@ def main():
                 st.warning("No se pudieron cargar los datos.")
                 return
 
-            # Filtro de estudiantes mejorado
-            st.subheader('Filtro de Estudiantes')
-            
-            metodo_busqueda = st.radio("Selecciona el método de búsqueda:", ("Lista desplegable", "Búsqueda por nombre"))
-
-            if metodo_busqueda == "Lista desplegable":
-                estudiante_seleccionado = st.selectbox('Selecciona un estudiante:', df['Nombre'].tolist())
-                if estudiante_seleccionado:
-                    info_estudiante = df[df['Nombre'] == estudiante_seleccionado]
-                    st.write(info_estudiante)
-            else:
-                nombre_buscar = st.text_input('Buscar estudiante por nombre:')
-                if nombre_buscar:
-                    estudiantes_filtrados = df[df['Nombre'].str.contains(nombre_buscar, case=False)]
-                    if not estudiantes_filtrados.empty:
-                        seleccion = st.selectbox('Selecciona un estudiante:', estudiantes_filtrados['Nombre'].tolist())
-                        estudiante_seleccionado = estudiantes_filtrados[estudiantes_filtrados['Nombre'] == seleccion]
-                        st.write(estudiante_seleccionado)
-                    else:
-                        st.write('No se encontraron estudiantes con ese nombre.')
-
-            # Gráficos
+            # Mostrar gráficos
             col1, col2 = st.columns(2)
             
             with col1:
-                st.subheader('Distribución de Edades de los Estudiantes')
-                st.plotly_chart(grafico_edades(df), use_container_width=True)
-
-                st.subheader('Distribución de Estudiantes por Grado')
-                st.plotly_chart(grafico_distribucion_grado(df), use_container_width=True)
+                st.plotly_chart(grafico_edades(df), use_container_width=True, config={'displayModeBar': False})
+                st.plotly_chart(grafico_distribucion_grado(df), use_container_width=True, config={'displayModeBar': False})
 
             with col2:
-                st.subheader('Promedio por Grado')
-                st.plotly_chart(grafico_promedio_grado(df), use_container_width=True)
+                st.plotly_chart(grafico_promedio_grado(df), use_container_width=True, config={'displayModeBar': False})
+                st.plotly_chart(grafico_mejores_promedios(df), use_container_width=True, config={'displayModeBar': False})
 
-                st.subheader('Dos Mejores Promedios por Grado')
-                st.plotly_chart(grafico_mejores_promedios(df), use_container_width=True)
+            st.plotly_chart(grafico_rendimiento_detallado(df), use_container_width=True, config={'displayModeBar': False})
 
-            # Gráfico sobre rendimiento detallado
-            st.subheader('Rendimiento Estudiantil Detallado')
-            st.plotly_chart(grafico_rendimiento_detallado(df), use_container_width=True)
-
-        elif auth_status == False:
-            st.error('Username/password is incorrect')
-        elif auth_status == None:
-            st.warning('Please enter your username and password')
-
-          # Registro de nuevos usuarios
+        # Registro de nuevos usuarios
         if auth_status != True:
             with st.expander("Registrarse"):
                 if authenticator.register_user('Register user', preauthorization=False):
