@@ -97,6 +97,7 @@ def grafico_rendimiento_detallado(df):
     )
     return configure_plot(fig)
 
+# Función de búsqueda de estudiantes
 def buscar_estudiante(df):
     st.subheader('Búsqueda de Estudiantes')
     
@@ -149,6 +150,9 @@ def main():
             config.get('preauthorized', [])
         )
         
+        # Crear contenedor para la barra lateral
+        sidebar = st.sidebar.container()
+        
         # Autenticación
         auth_name, auth_status, auth_username = authenticator.login("Login", "main")
 
@@ -159,8 +163,9 @@ def main():
 
         if auth_status:
             # Autenticación exitosa
-            authenticator.logout("Logout", "sidebar")
-            st.sidebar.write(f'Welcome *{auth_name}*')
+            with sidebar:
+                st.write(f'Welcome *{auth_name}*')
+                authenticator.logout("Logout", "main")
             
             st.title('Visualizador de Datos del Colegio SENA')
             
