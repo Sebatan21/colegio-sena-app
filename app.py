@@ -15,6 +15,27 @@ def load_config():
     with open('config.yml') as file:
         return yaml.load(file, Loader=SafeLoader)
 
+# Función para guardar la configuración
+def save_config(config):
+    with open('config.yml', 'w') as file:
+        yaml.dump(config, file, default_flow_style=False)
+
+# Función para ver usuarios registrados
+def view_registered_users(config):
+    st.subheader("Usuarios Registrados")
+    if 'credentials' in config and 'usernames' in config['credentials']:
+        users_df = pd.DataFrame([
+            {
+                'Username': username,
+                'Name': data['name'],
+                'Email': data['email']
+            }
+            for username, data in config['credentials']['usernames'].items()
+        ])
+        st.dataframe(users_df)
+    else:
+        st.warning("No hay usuarios registrados en el sistema.")
+
 # Función para cargar datos
 @st.cache_data
 def load_data():
@@ -166,6 +187,11 @@ def main():
             with sidebar:
                 st.write(f'Welcome *{auth_name}*')
                 authenticator.logout("Logout", "main")
+                
+                # Opción para ver usuarios registrados (solo para administradores)
+                if auth_username == 'jsmith':  # Cambia esto por tu usuario administrador
+                    if st.checkbox("Ver Usuarios Registrados"):
+                        view_registered_users(config)
             
             st.title('Visualizador de Datos del Colegio SENA')
             
@@ -195,8 +221,13 @@ def main():
         # Registro de nuevos usuarios
         if auth_status != True:
             with st.expander("Registrarse"):
-                if authenticator.register_user('Register user', preauthorization=False):
-                    st.success('User registered successfully')
+                try:
+                    if authenticator.register_user('Register user', preauthorization=False):
+                        st.success('User registered successfully')
+                        # Guardar la configuración actualizada
+                        save_config(config)
+                except Exception as e:
+                    st.error(f"Error during registration: {str(e)}")
 
     except Exception as e:
         st.error(f"Error en la aplicación: {str(e)}")
