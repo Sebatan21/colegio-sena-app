@@ -1,12 +1,12 @@
 credentials:
   usernames:
-    jsmith:
-      email: jsmith@gmail.com
-      name: John Smith
-      password: $2b$12$abcdefghijklmnopqrstuvwxyz12345678901234567890 # Esta es una contraseña hasheada
+    sebomaro2103:
+      email: sebastianmontenegrorangel@gmail.com
+      name: Sebastián Montenegro
+      password: $2b$12$wWBu2.mFAJGDfBNHrAmxq.g7aEY6CZRgUNDAXYrWH9QWBs.O9F6mK # Password hasheada de "sebomaro2103"
 cookie:
   expiry_days: 30
   key: some_signature_key
   name: some_cookie_name
 preauthorized:
-  - melsby@gmail.com
+  - sebastianmontenegrorangel@gmail.com

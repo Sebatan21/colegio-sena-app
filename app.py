@@ -189,7 +189,7 @@ def main():
                 authenticator.logout("Logout", "main")
                 
                 # Opción para ver usuarios registrados (solo para administradores)
-                if auth_username == 'jsmith':  # Cambia esto por tu usuario administrador
+                if auth_username == 'sebomaro2103':  # Usuario administrador
                     if st.checkbox("Ver Usuarios Registrados"):
                         view_registered_users(config)
             
