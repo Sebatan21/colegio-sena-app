@@ -1,5 +1,9 @@
 credentials:
   usernames:
+    angelo_david:
+      email: angelocalderon.davila@gmail.com
+      name: Angelo Calderon
+      password: 61b7bd0b5bfb565c729870992ed83b3555c34e4b
     sebomaro2103:
       email: sebastianmontenegrorangel@gmail.com
       name: Sebastián Montenegro
@@ -10,3 +14,4 @@ cookie:
   name: some_cookie_name
 preauthorized:
   - sebastianmontenegrorangel@gmail.com
+  - angelocalderon.davila@gmail.com
