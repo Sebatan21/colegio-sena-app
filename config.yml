@@ -1,13 +1,13 @@
 credentials:
   usernames:
-    angelo_david:
-      email: angelocalderon.davila@gmail.com
-      name: Angelo Calderon
-      password: 61b7bd0b5bfb565c729870992ed83b3555c34e4b
     sebomaro2103:
       email: sebastianmontenegrorangel@gmail.com
       name: Sebastián Montenegro
       password: $2b$12$wWBu2.mFAJGDfBNHrAmxq.g7aEY6CZRgUNDAXYrWH9QWBs.O9F6mK # Password hasheada de "sebomaro2103"
+    adminangelo:
+      email: angelocalderon.davila@gmail.com
+      name: Angelo Calderon
+      password: $2b$12$YmCOR/B5VHAQ.z4R84YHw.yhqA5ZNOaIvGLDyHgxnPNGVxFQVY2aO # contraseña: AdminAngelo2024
 cookie:
   expiry_days: 30
   key: some_signature_key
