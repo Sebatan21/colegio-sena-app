@@ -8,6 +8,10 @@ credentials:
       email: angelocalderon.davila@gmail.com
       name: Angelo Calderon
       password: $2b$12$YmCOR/B5VHAQ.z4R84YHw.yhqA5ZNOaIvGLDyHgxnPNGVxFQVY2aO # contraseña: AdminAngelo2024
+    marianmontenegrorangel:
+      email: marianmontenegrorangel@gmail.com
+      name: Marian Montnegro
+      password: $2b$12$mNpBjXFxjcYMpgO7Ou9tBeFgCCEaKtw0ZFE7gRbRKVG/ZNKLcUY6q
 cookie:
   expiry_days: 30
   key: some_signature_key
@@ -15,3 +19,4 @@ cookie:
 preauthorized:
   - sebastianmontenegrorangel@gmail.com
   - angelocalderon.davila@gmail.com
+  - marianmontenegrorangel@gmail.com
